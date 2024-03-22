@@ -1,4 +1,4 @@
-import { github, lucia } from "@/server/auth";
+import { discord, lucia } from "@/server/auth";
 import { cookies } from "next/headers";
 import { OAuth2RequestError } from "arctic";
 import { generateId } from "lucia";
@@ -10,7 +10,7 @@ export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  const storedState = cookies().get("github_oauth_state")?.value ?? null;
+  const storedState = cookies().get("discord_oauth_state")?.value ?? null;
   if (!code || !state || !storedState || state !== storedState) {
     return new Response(null, {
       status: 400,
@@ -18,16 +18,19 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   try {
-    const tokens = await github.validateAuthorizationCode(code);
-    const githubUserResponse = await fetch("https://api.github.com/user", {
+    const tokens = await discord.validateAuthorizationCode(code);
+    const response = await fetch("https://discord.com/api/users/@me", {
       headers: {
         Authorization: `Bearer ${tokens.accessToken}`,
       },
     });
-    const githubUser = (await githubUserResponse.json()) as GitHubUser;
+    const discordUser = (await response.json()) as DiscordUser;
 
     const existingUser = await db.query.providersTable.findFirst({
-      where: and(eq(providersTable.providerUserId, String(githubUser.id)), eq(providersTable.providerType, "github")), 
+      where: and(
+        eq(providersTable.providerUserId, discordUser.id),
+        eq(providersTable.providerType, "discord"),
+      ),
     });
 
     if (existingUser) {
@@ -53,12 +56,12 @@ export async function GET(request: Request): Promise<Response> {
 
     await db.insert(userTable).values({
       id: userId,
-      username: githubUser.login,
+      username: discordUser.username,
     });
 
     await db.insert(providersTable).values({
-      providerType: "github",
-      providerUserId: String(githubUser.id),
+      providerType: "discord",
+      providerUserId: discordUser.id,
       userId: userId,
     });
 
@@ -88,7 +91,7 @@ export async function GET(request: Request): Promise<Response> {
   }
 }
 
-interface GitHubUser {
-  id: number;
-  login: string;
+interface DiscordUser {
+  id: string;
+  username: string;
 }

@@ -40,7 +40,6 @@ export const userTable = createTable("user", {
 
 export const providerEnum = pg.pgEnum("providerType", ["github", "discord"]);
 
-
 export const providersTable = createTable(
   "providers",
   {
@@ -53,7 +52,9 @@ export const providersTable = createTable(
   },
   (table) => {
     return {
-      pk: pg.primaryKey({ columns: [table.providerType, table.providerUserId] }),
+      pk: pg.primaryKey({
+        columns: [table.providerType, table.providerUserId],
+      }),
     };
   },
 );
@@ -70,4 +71,13 @@ export const sessionTable = createTable("session", {
       mode: "date",
     })
     .notNull(),
+});
+
+export const passwordTable = createTable("passwords", {
+  userId: pg
+    .text("user_id")
+    .notNull()
+    .primaryKey()
+    .references(() => userTable.id),
+  password: pg.text("text").notNull(),
 });

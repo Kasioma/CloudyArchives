@@ -1,4 +1,4 @@
-import { GitHub } from "arctic";
+import { Discord, GitHub } from "arctic";
 import { type InferSelectModel } from "drizzle-orm";
 import { Lucia, Session, User } from "lucia";
 import { sessionTable, userTable } from "./db/schema";
@@ -71,4 +71,10 @@ declare module "lucia" {
 export const github = new GitHub(
   env.GITHUB_CLIENT_ID,
   env.GITHUB_CLIENT_SECRET,
+);
+
+export const discord = new Discord(
+  env.DISCORD_CLIENT_ID,
+  env.DISCORD_CLIENT_SECRET,
+  env.DICSORD_REDIRECT,
 );
