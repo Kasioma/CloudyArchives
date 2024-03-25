@@ -52,6 +52,12 @@ export async function GET(request: Request): Promise<Response> {
       });
     }
 
+    const user = await db.query.userTable.findFirst({
+      where: eq(userTable.username, discordUser.username),
+    });
+
+    if (user) discordUser.username += "-" + generateId(4);
+
     const userId = generateId(15);
 
     await db.insert(userTable).values({

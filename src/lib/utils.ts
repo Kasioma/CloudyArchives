@@ -16,7 +16,6 @@ const passwordSchema = z.string();
 export const userLoginSchema = z.object({
   username: z
     .string()
-    .min(5)
     .max(20)
     .refine((str) => !/^[0-9_-]+$/.test(str)),
   password: passwordSchema,

@@ -34,7 +34,7 @@ export const roleEnum = pg.pgEnum("role", ["user", "moderator"]);
 
 export const userTable = createTable("user", {
   id: pg.text("id").primaryKey(),
-  username: pg.text("username").notNull(),
+  username: pg.text("username").notNull().unique(),
   role: roleEnum("role").default("user").notNull(),
 });
 
