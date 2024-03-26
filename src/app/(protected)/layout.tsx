@@ -1,5 +1,5 @@
-import { logout } from "@/server/actions/auth";
 import { validateRequest } from "@/server/auth";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 type Props = {
   children: React.ReactNode;
@@ -11,9 +11,7 @@ export default async function layout({ children }: Props) {
     <>
       <h1>Hi, {user.username}!</h1>
       <p>Your user ID is {user.id}.</p>
-      <form action={logout}>
-        <button>Sign out</button>
-      </form>
+      <Link href="/api/auth/logout">logout</Link>
       {children}
     </>
   );
